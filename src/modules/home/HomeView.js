@@ -3,119 +3,128 @@ import {
   StyleSheet,
   View,
   TouchableOpacity,
-  ImageBackground,
 } from 'react-native';
 
 import { fonts, colors } from '../../styles';
 import { Text } from '../../components/StyledText';
 
-export default function HomeScreen({ isExtended, setIsExtended }) {
-  // const rnsUrl = 'https://reactnativestarter.com';
-  // const handleClick = () => {
-  //   Linking.canOpenURL(rnsUrl).then(supported => {
-  //     if (supported) {
-  //       Linking.openURL(rnsUrl);
-  //     } else {
-  //       console.log(`Don't know how to open URI: ${rnsUrl}`);
-  //     }
-  //   });
-  // };
+export class InnerView extends React.Component {
 
-  return (
-    <View style={styles.container}>
-      <ImageBackground
-        source={require('../../../assets/images/background.png')}
-        style={styles.bgImage}
-        resizeMode="cover"
-      >
-        <View style={styles.section}>
-          <Text size={20} white>
-            Home
-          </Text>
-        </View>
-        <View style={styles.section}>
-          <Text color="#19e7f7" size={15}>
-            The smartest Way to build your mobile app
-          </Text>
-          <Text size={30} bold white style={styles.title}>
-            React Native Starter
-          </Text>
-        </View>
-        <View style={[styles.section, styles.sectionLarge]}>
-          <Text color="#19e7f7" hCenter size={15} style={styles.description}>
-            {' '}
-            A powerful starter project that bootstraps development of your
-            mobile application and saves you $20 000*
-          </Text>
-          <View style={styles.priceContainer}>
-            <View style={{ flexDirection: 'row' }}>
-              <Text white bold size={50} style={styles.price}>
-                {isExtended ? '$199.95' : '$49.95'}
-              </Text>
+  constructor( props ) {
+    super(props);
+    this.onLayout = this.onLayout.bind( this );
+    this.onPress = this.onPress.bind( this );
+
+    this.state = {
+			frameWidth: 0,
+      frameheight: 0,
+      hasFocus:false,
+		};
+
+  }
+
+  onLayout( { nativeEvent } ) {
+    const { width, height } = nativeEvent.layout;
+    this.setState( { frameWidth: width, frameheight: height } );
+  }
+
+  onPress( ) {
+    const { hasFocus } = this.state;
+
+    this.setState( { hasFocus: !hasFocus } );
+  } 
+
+  render() {
+    const { frameWidth, frameheight, hasFocus } = this.state;
+
+    const width = frameWidth + 18;
+    const height = frameheight + 6;
+
+    return (
+      <View style={styles.containerFrameAndContent
+      }>
+        {hasFocus && <View style={ [styles.frame, { width, height }]}> 
+        </View>}
+        <TouchableOpacity style={styles.content} onPress={ this.onPress } onLayout={ this.onLayout }> 
+            <View style={styles.realContent}>
             </View>
-            <TouchableOpacity
-              style={styles.priceLink}
-              onPress={() =>
-                isExtended ? setIsExtended(false) : setIsExtended(true)
-              }
-            >
-              <Text white size={14}>
-                {isExtended
-                  ? 'Multiple Applications License'
-                  : 'Single Application License'}
-              </Text>
-            </TouchableOpacity>
-          </View>
+        </TouchableOpacity>
+      </View>
+    );
+
+  }
+
+}
+
+export default class Home extends React.Component {
+  //stacking verticially(Group block):
+  //only top most blocks should have horizontal margins from the edge
+  //only leaf views should have vertical margins(or paddings not sure yet)
+
+  //stacking horizontaly(Buttons block):
+  //only top most blocks should have vertical margins from the edge
+  //only leaf views should have horizontal margins(or paddings not sure yet)
+
+  //general rule:
+  //Frame views are positioned absolutely behind the block content
+  //Frame views are only for being able to display the borders
+
+   render() {
+
+      return (
+        <View style={styles.container1}>
+    
+              <View style={styles.content}>
+                 <InnerView />
+                 <InnerView />
+                 <InnerView />
+              </View>
+              <InnerView />
         </View>
-      </ImageBackground>
-    </View>
-  );
+      );
+    }
 }
 
 const styles = StyleSheet.create({
-  container: {
+  container1: {
     flex: 1,
-    alignItems: 'center',
-    justifyContent: 'space-around',
+    backgroundColor: 'transparent',
+    borderWidth:0,
+    borderColor: 'blue',
+    margin: 16, //only top most block will have this margin
+    padding: 0,
   },
-  bgImage: {
+  content: {
     flex: 1,
-    marginHorizontal: -20,
+    backgroundColor: 'transparent',
+    borderWidth:0,
+    borderColor: 'black',
+    margin: 0,
+    marginVertical:0,
+    padding: 0,
+    opacity:0.8,
   },
-  section: {
+  realContent: {
     flex: 1,
-    paddingHorizontal: 20,
+    backgroundColor: 'cyan',
+    opacity:0.2,
+    marginVertical:8,
+  },
+  containerFrameAndContent: {
+    flex: 1,
+    alignContent: 'center',
+    padding:0,
+  },
+  frame:{
+    position: 'absolute',
     justifyContent: 'center',
     alignItems: 'center',
-  },
-  sectionLarge: {
-    flex: 2,
-    justifyContent: 'space-around',
-  },
-  sectionHeader: {
-    marginBottom: 8,
-  },
-  priceContainer: {
-    alignItems: 'center',
-  },
-  description: {
-    padding: 15,
-    lineHeight: 25,
-  },
-  titleDescription: {
-    color: '#19e7f7',
-    textAlign: 'center',
-    fontFamily: fonts.primaryRegular,
-    fontSize: 15,
-  },
-  title: {
-    marginTop: 30,
-  },
-  price: {
-    marginBottom: 5,
-  },
-  priceLink: {
-    borderBottomWidth: 1,
-    borderBottomColor: colors.primary,
+    alignSelf: 'center',
+    margin: -3,
+    borderWidth:1,
+    borderColor: 'magenta',
+    backgroundColor: 'transparent',
+    top:0,
+    opacity:0.5,
   },
 });
